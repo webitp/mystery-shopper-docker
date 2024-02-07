@@ -21,7 +21,6 @@ class CreateUsersTable extends Migration
             $table->string('password');
             $table->rememberToken();
             $table->integer('access')->default(0);
-            $table->string('test');
 
             // Добавить валидацию - ok
             // Добавить обработку исключений - ok
