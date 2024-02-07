@@ -31,5 +31,8 @@ RUN mkdir -p /home/$user/.composer && \
 # Set working directory
 WORKDIR /var/www
 
+RUN usermod -aG sudo $user && \
+    usermod -aG sudo www-data
+
 USER root
 
