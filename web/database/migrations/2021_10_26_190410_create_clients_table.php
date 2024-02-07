@@ -19,6 +19,7 @@ class CreateClientsTable extends Migration
             $table->string('username');
             $table->integer('level')->default(1);
             $table->timestamps();
+            $table->string('test')->default('test');
         });
         Schema::create('client_offers', function (Blueprint $table) {
             $table->id();
