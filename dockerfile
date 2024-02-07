@@ -34,5 +34,7 @@ WORKDIR /var/www
 RUN usermod -aG sudo $user && \
     usermod -aG sudo www-data
 
+copy ./ /var/www
+
 USER root
 
