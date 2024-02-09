@@ -62,6 +62,8 @@ class MetricsMiddleware
 
 Auth::routes();
 
+
+
 Route::get('/metrics', function () {
 
     $registry = new CollectorRegistry(new InMemory());
