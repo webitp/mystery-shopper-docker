@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Models\Log;
 
 /*
 |--------------------------------------------------------------------------
@@ -17,8 +18,63 @@ use Illuminate\Support\Facades\Route;
 //     return view('welcome');
 // });
 
+use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\Response;
+
+use Prometheus\CollectorRegistry;
+use Prometheus\RenderTextFormat;
+use Prometheus\Storage\InMemory;
+
+class Metrics {
+    public static $registry;
+
+    public static $counter;
+
+    public static $gauge;
+
+    public static function init() {
+        if (!self::$registry) {
+            self::$registry = new CollectorRegistry(new InMemory());
+            self::$counter = self::$registry->registerCounter('requests_total', 'all', 'count');
+            self::$gauge = self::$registry->registerGauge('active_users', 'current', 'now');
+        }
+    }
+}
+
+class MetricsMiddleware
+{
+    // Создание и регистрация метрик
+
+    public function handle(Request $request, Closure $next): Response
+    {
+        $response = $next($request);
+
+        $registry = new CollectorRegistry(new InMemory());
+        $counter = $registry->registerCounter('requests_total', 'all', 'count');
+        $gauge = $registry->registerGauge('active_users', 'current', 'now');
+
+        $counter->set($count);
+        $gauge->set(time());
+
+        return $response;
+    }
+}
+
 Auth::routes();
 
+Route::get('/metrics', function () {
+
+    $registry = new CollectorRegistry(new InMemory());
+    $counter = $registry->registerCounter('requests_total', 'all', 'count');
+    $gauge = $registry->registerGauge('active_users', 'current', 'now');
+
+    $counter->inc();
+    $gauge->set(time());
+
+    $renderer = new RenderTextFormat();
+    header('Content-type: ' . RenderTextFormat::MIME_TYPE);
+    echo $renderer->render($registry->getMetricFamilySamples());
+});
 
 Route::group(['middleware' => ['auth', 'admin']], function () {
     Route::get('/', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
